@@ -277,6 +277,18 @@ jobs:
     needs: [ install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
@@ -313,6 +325,17 @@ jobs:
     needs: [ install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
@@ -349,6 +372,17 @@ jobs:
     needs: [ install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
