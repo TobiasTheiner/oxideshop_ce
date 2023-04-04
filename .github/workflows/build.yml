@@ -3,11 +3,6 @@ name: Build
 on:
   workflow_dispatch:
     inputs:
-      shop_branch:
-        description: 'Shop branch or tag'
-        required: true
-        default: 'b-7.0.x'
-        type: string
       php:
         description: 'PHP version'
         required: true
@@ -48,16 +43,11 @@ jobs:
   prepare_environment:
     runs-on: ubuntu-latest
     outputs:
-      SHOP_BRANCH: ${{ steps.shop_branch.outputs.SHOP_BRANCH }}
       PHP_VERSION: ${{ steps.php_version.outputs.PHP_VERSION }}
       MYSQL_VERSION: ${{ steps.mysql_version.outputs.MYSQL_VERSION }}
       TEMPLATE_ENGINE: ${{ steps.template_engine.outputs.TEMPLATE_ENGINE }}
       THEME: ${{ steps.theme.outputs.THEME }}
     steps:
-      - id: shop_branch
-        run: |
-          echo -n "SHOP_BRANCH=${{ inputs.shop_branch }}" >> $GITHUB_OUTPUT
-
       - id: php_version
         run: |
           echo -n "PHP_VERSION=${{ inputs.php }}" >> $GITHUB_OUTPUT
@@ -109,16 +99,12 @@ jobs:
     steps:
       - name: Print test parameters
         run: |
-          echo "Running job with shop branch/tag ${{ needs.prepare_environment.outputs.SHOP_BRANCH }}"
+          echo "Running job with shop branch/tag ${{ github.ref_name }}"
           echo "Running job with PHP version ${{ needs.prepare_environment.outputs.PHP_VERSION }}"
           echo "Running job with MySQL version ${{ needs.prepare_environment.outputs.MYSQL_VERSION }}"
           echo "Running job with template engine ${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}"
           echo "Running job with theme ${{ needs.prepare_environment.outputs.THEME }}"
           echo ${{ github.event_name }}
-
-      - name: Context shop_branch
-        run: |
-          echo -n "SHOP_BRANCH=${{ needs.prepare_environment.outputs.SHOP_BRANCH }}" >> $GITHUB_ENV
 
       - name: Context php_version
         run: |
@@ -140,7 +126,7 @@ jobs:
         run: git clone https://github.com/OXID-eSales/docker-eshop-sdk.git .
 
       - name: Clone the shop
-        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ env.SHOP_BRANCH }} --single-branch source
+        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ github.ref_name }} --single-branch source
 
       - name: Cache current installation
         uses: actions/cache@v3
