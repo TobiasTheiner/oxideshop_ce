@@ -41,6 +41,7 @@ on:
 
 jobs:
   prepare_environment:
+    name: Preparation
     runs-on: ubuntu-latest
     outputs:
       PHP_VERSION: ${{ steps.php_version.outputs.PHP_VERSION }}
@@ -94,6 +95,7 @@ jobs:
 #          wait_workflow: false
 
   install_shop:
+    name: Installation
     needs: [ prepare_environment ]
     runs-on: ubuntu-latest
     steps:
@@ -257,6 +259,7 @@ jobs:
             source/source/config.inc.php
 
   unit_tests:
+    name: Unit
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
@@ -313,6 +316,7 @@ jobs:
           retention-days: 7
 
   integration_tests:
+    name: Integration
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
@@ -369,6 +373,7 @@ jobs:
           retention-days: 7
 
   codeception_tests:
+    name: Codeception
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
