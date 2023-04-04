@@ -42,6 +42,7 @@ on:
           - 'twig'
           - 'wave'
           - 'flow'
+          - 'azure'
 
 jobs:
   prepare_environment:
@@ -240,6 +241,12 @@ jobs:
           docker-compose exec -T php composer config -g github-oauth.github.com ${{ secrets.GH_CI_JENKINS_TOKEN }}
           docker-compose exec -T php composer config repositories.oxid-esales/apex-theme git https://github.com/OXID-eSales/apex-theme.git
           docker-compose exec -T php composer require oxid-esales/apex-theme:dev-main --no-update
+
+      - name: Install twig-theme
+        if: ${{ env.THEME == 'twig' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/twig-theme:dev-b-7.0.x --no-update
 
       - name: Install wave-theme
         if: ${{ env.THEME == 'wave' }}
