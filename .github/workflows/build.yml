@@ -301,10 +301,8 @@ jobs:
             php php vendor/bin/phpunit -c phpunit.xml tests/Unit | tee unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
           if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
 
-      - name: Check results
-        run: |
-          if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
-          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+      - name: Ensure that tests have been run
+        run: if [ ! -s unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
 
       - name: Upload PHPUnit Log
         if: always()
@@ -358,10 +356,8 @@ jobs:
             php php vendor/bin/phpunit -c phpunit.xml --bootstrap tests/bootstrap.php tests/Integration | tee integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
           if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
 
-      - name: Check results
-        run: |
-          if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
-          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+      - name: Ensure that tests have been run
+        run: if [ ! -s integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
 
       - name: Upload PHPUnit Log
         if: always()
@@ -415,11 +411,10 @@ jobs:
             -e ACTIVE_THEME=${{ env.THEME }} \
             -e THEME_ID=${{ env.THEME }} \
             php php vendor/bin/codecept run acceptance,acceptanceAdmin -c tests/codeception.yml --ext DotReporter | tee codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
-
-      - name: Check results
-        run: |
-          if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
           if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Ensure that tests have been run
+        run: if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
 
       - name: Upload PHPUnit Log
         if: always()
