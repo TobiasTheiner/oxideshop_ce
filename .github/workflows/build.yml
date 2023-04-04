@@ -1,3 +1,4 @@
+name: Build
 run-name: Build PHP ${{ github.event.inputs.php }} / MySQL ${{ github.event.inputs.mysql }} by @${{ github.actor }}
 
 on:
