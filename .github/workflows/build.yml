@@ -331,7 +331,6 @@ jobs:
           retention-days: 7
 
   codeception_tests:
-    strategy:
     needs: [ install_shop ]
     runs-on: ubuntu-latest
     steps:
