@@ -254,9 +254,6 @@ jobs:
           docker-compose exec -T php bin/oe-console oe:setup:shop --db-host mysql --db-port 3306 --db-name example \
           --db-user root --db-password root --shop-url http://localhost.local/ --shop-directory /var/www/source/ --compile-directory /var/www/source/tmp/
 
-      - name: Activate ${{ env.THEME }}-theme
-        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
-
       - name: Stop containers
         if: always()
         run: |
@@ -290,6 +287,10 @@ jobs:
         run: |
           echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
 
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
@@ -303,6 +304,9 @@ jobs:
         run: |
           make up
           sleep 2
+
+      - name: Activate ${{ env.THEME }}-theme
+        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
 
       - name: Run tests
         run: |
@@ -337,6 +341,11 @@ jobs:
       - name: Context template_engine
         run: |
           echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
@@ -350,6 +359,9 @@ jobs:
         run: |
           make up
           sleep 2
+
+      - name: Activate ${{ env.THEME }}-theme
+        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
 
       - name: Run tests
         run: |
@@ -384,6 +396,11 @@ jobs:
       - name: Context template_engine
         run: |
           echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
       - name: Load current installation from cache
         uses: actions/cache@v3
         with:
@@ -397,6 +414,9 @@ jobs:
         run: |
           make up
           sleep 2
+
+      - name: Activate ${{ env.THEME }}-theme
+        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
 
       - name: Run tests
         run: |
