@@ -115,21 +115,25 @@ jobs:
           echo "Running job with theme ${{ needs.prepare_environment.outputs.THEME }}"
           echo ${{ github.event_name }}
 
-      - name: context shop_branch
+      - name: Context shop_branch
         run: |
           echo -n "SHOP_BRANCH=${{ needs.prepare_environment.outputs.SHOP_BRANCH }}" >> $GITHUB_ENV
 
-      - name: context php_version
+      - name: Context php_version
         run: |
           echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION }}" >> $GITHUB_ENV
 
-      - name: context mysql_version
+      - name: Context mysql_version
         run: |
           echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION }}" >> $GITHUB_ENV
 
-      - name: context template_engine
+      - name: Context template_engine
         run: |
           echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME }}" >> $GITHUB_ENV
 
       - name: Clone testing environment master
         run: git clone https://github.com/OXID-eSales/docker-eshop-sdk.git .
