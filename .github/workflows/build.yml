@@ -135,7 +135,7 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Prepare container configuration
         run: |
@@ -251,7 +251,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Config-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+          name: Config-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             docker-compose.yml
             source/composer.json
@@ -284,9 +284,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
@@ -339,9 +339,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
@@ -394,9 +394,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.sha }}
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ env.THEME }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
