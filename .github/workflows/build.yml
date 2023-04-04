@@ -252,12 +252,18 @@ jobs:
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/azure-theme:dev-master --no-update
 
+      - name: Require developer-tools
+        run: docker-compose exec -T php composer require oxid-esales/developer-tools:dev-b-7.0.x --no-update --dev
+
       - name: Install dependencies
         run: |
           docker-compose exec -T php composer update --no-interaction
 
       - name: Reset shop
         run: docker-compose exec -T php bin/oe-console oe:database:reset --db-host=mysql --db-port=3306 --db-name=example --db-user=root --db-password=root --force
+
+      - name: Activate ${{ env.THEME }}-theme
+        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
 
       - name: Stop containers
         if: always()
