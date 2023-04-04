@@ -274,7 +274,7 @@ jobs:
             source/source/config.inc.php
 
   unit_tests:
-    needs: [ install_shop ]
+    needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
       - name: Context php_version
@@ -322,7 +322,7 @@ jobs:
           retention-days: 7
 
   integration_tests:
-    needs: [ install_shop ]
+    needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
       - name: Context php_version
@@ -369,7 +369,7 @@ jobs:
           retention-days: 7
 
   codeception_tests:
-    needs: [ install_shop ]
+    needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
       - name: Context php_version
