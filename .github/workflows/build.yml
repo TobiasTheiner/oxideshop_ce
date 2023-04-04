@@ -220,21 +220,21 @@ jobs:
           make up
           sleep 2
 
-      - name: Install twig template engine
+      - name: Require twig template engine
         if: ${{ env.TEMPLATE_ENGINE == 'twig' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/twig-component:dev-b-7.0.x --no-update
           docker-compose exec -T php composer require oxid-esales/twig-admin-theme:dev-b-7.0.x --no-update
 
-      - name: Install smarty template engine
+      - name: Require smarty template engine
         if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/smarty-component:dev-b-7.0.x --no-update
           docker-compose exec -T php composer require oxid-esales/smarty-admin-theme:dev-b-7.0.x --no-update
 
-      - name: Install apex-theme
+      - name: Require apex-theme
         if: ${{ env.THEME == 'apex' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
@@ -242,25 +242,25 @@ jobs:
           docker-compose exec -T php composer config repositories.oxid-esales/apex-theme git https://github.com/OXID-eSales/apex-theme.git
           docker-compose exec -T php composer require oxid-esales/apex-theme:dev-main --no-update
 
-      - name: Install twig-theme
+      - name: Require twig-theme
         if: ${{ env.THEME == 'twig' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/twig-theme:dev-b-7.0.x --no-update
 
-      - name: Install wave-theme
+      - name: Require wave-theme
         if: ${{ env.THEME == 'wave' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/wave-theme:dev-b-7.0.x --no-update
 
-      - name: Install flow-theme
+      - name: Require flow-theme
         if: ${{ env.THEME == 'flow' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/flow-theme:dev-b-7.0.x --no-update
 
-      - name: Install azure-theme
+      - name: Require azure-theme
         if: ${{ env.THEME == 'azure' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
