@@ -408,6 +408,9 @@ jobs:
             php php vendor/bin/codecept run acceptance,acceptanceAdmin -c tests/codeception.yml --ext DotReporter | tee codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
           if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
 
+      - name: Ensure that tests have been run
+        run: if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
       - name: Upload PHPUnit Log
         if: always()
         uses: actions/upload-artifact@v3
@@ -416,9 +419,6 @@ jobs:
           path: codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
           if-no-files-found: error
           retention-days: 7
-
-      - name: Ensure that tests have been run
-        run: if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
 
       - name: Upload Codeception Artifacts
         if: always()
