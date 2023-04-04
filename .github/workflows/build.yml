@@ -30,20 +30,30 @@ on:
           - 'twig'
           - 'smarty'
       apex-theme:
-        description: 'Apex-theme'
+        description: 'apex-theme'
         default: 'dev-main'
       twig-theme:
-        description: 'Twig-theme'
-        default: 'dev-b-7.0.x'
       wave-theme:
-        description: 'Wave-theme'
-        default: 'dev-b-7.0.x'
       flow-theme:
-        description: 'Flow-theme'
-        default: 'dev-b-7.0.x'
       azure-theme:
-        description: 'Azure-theme'
-        default: 'dev-master'
+      oxideshop-composer-plugin:
+        default: 'dev-b-7.0.x'
+      oxideshop-db-views-generator:
+        default: 'dev-b-7.0.x'
+      oxideshop-doctrine-migration-wrapper:
+        default: 'dev-b-7.0.x'
+      oxideshop-facts:
+        default: 'dev-b-7.0.x'
+      oxideshop-unified-namespace-generator:
+        default: 'dev-b-7.0.x'
+      codeception-modules:
+        default: 'dev-b-7.0.x'
+      codeception-page-objects:
+        default: 'dev-b-7.0.x'
+      developer-tools:
+        default: 'dev-b-7.0.x'
+      oxideshop-ide-helper:
+        default: 'dev-b-7.0.x'
 
 jobs:
   prepare_environment:
