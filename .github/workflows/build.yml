@@ -217,8 +217,15 @@ jobs:
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/azure-theme:dev-master --no-update
 
-      - name: Require developer-tools
-        run: docker-compose exec -T php composer require oxid-esales/developer-tools:dev-b-7.0.x --no-update --dev
+      - name: Require dev-dependencies
+        run: |
+          docker-compose exec -T php composer require oxid-esales/developer-tools:dev-b-7.0.x --no-update --dev
+
+      - name: Require dev-depencencies for apex-theme
+        if: ${{ env.THEME == 'apex' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/codeception-modules:dev-b-7.0.x-APEX --no-update --dev
+          docker-compose exec -T php composer require oxid-esales/codeception-page-objects:dev-b-7.0.x-APEX --no-update --dev
 
       - name: Install dependencies
         run: |
