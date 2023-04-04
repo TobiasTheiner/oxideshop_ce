@@ -241,9 +241,6 @@ jobs:
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/azure-theme:dev-master --no-update
 
-      - name: Require developer-tools
-        run: docker-compose exec -T php composer require oxid-esales/developer-tools:dev-b-7.0.x --no-update --dev
-
       - name: Install dependencies
         run: |
           docker-compose exec -T php composer update --no-interaction
@@ -252,6 +249,9 @@ jobs:
         run: |
           docker-compose exec -T php bin/oe-console oe:shop:setup --db-host mysql --db-port 3306 --db-name example \
           --db-user root --db-password root --shop-url http://localhost.local/ --shop-directory /var/www/source/ --compile-directory /var/www/source/tmp/
+
+      - name: Require developer-tools
+        run: docker-compose exec -T php composer require oxid-esales/developer-tools:dev-b-7.0.x --no-update --dev
 
       - name: Activate ${{ env.THEME }}-theme
         run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
