@@ -219,31 +219,49 @@ jobs:
           make up
           sleep 2
 
-      - name: Install smarty template engine and ${{ env.THEME }} theme
-        if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
-        run: |
-          docker-compose exec -T php composer config github-protocols https
-          docker-compose exec -T php composer require oxid-esales/smarty-component:dev-b-7.0.x --no-update
-          docker-compose exec -T php composer require oxid-esales/smarty-admin-theme:dev-b-7.0.x --no-update
-          docker-compose exec -T php composer require oxid-esales/${{ env.THEME }}-theme:dev-b-7.0.x --no-update
-
-      - name: Install twig template engine and ${{ env.THEME }} theme
+      - name: Install twig template engine
         if: ${{ env.TEMPLATE_ENGINE == 'twig' }}
         run: |
           docker-compose exec -T php composer config github-protocols https
           docker-compose exec -T php composer require oxid-esales/twig-component:dev-b-7.0.x --no-update
           docker-compose exec -T php composer require oxid-esales/twig-admin-theme:dev-b-7.0.x --no-update
-          docker-compose exec -T php composer require oxid-esales/${{ env.THEME }}-theme:dev-b-7.0.x --no-update
+
+      - name: Install smarty template engine
+        if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/smarty-component:dev-b-7.0.x --no-update
+          docker-compose exec -T php composer require oxid-esales/smarty-admin-theme:dev-b-7.0.x --no-update
+
+      - name: Install apex-theme
+        if: ${{ env.THEME == 'apex' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer config -g github-oauth.github.com ${{ secrets.GH_CI_JENKINS_TOKEN }}
+          docker-compose exec -T php composer config repositories.oxid-esales/apex-theme git https://github.com/OXID-eSales/apex-theme.git
+          docker-compose exec -T php composer require oxid-esales/apex-theme:dev-main --no-update
+
+      - name: Install wave-theme
+        if: ${{ env.THEME == 'wave' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/wave-theme:dev-b-7.0.x --no-update
+
+      - name: Install flow-theme
+        if: ${{ env.THEME == 'flow' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/flow-theme:dev-b-7.0.x --no-update
+
+      - name: Install azure-theme
+        if: ${{ env.THEME == 'azure' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/azure-theme:dev-master --no-update
 
       - name: Install dependencies
         run: |
           docker-compose exec -T php composer update --no-interaction
-
-      - name: Reset and prepare
-        run: |
-          docker-compose exec -T php bin/oe-console oe:database:reset --db-host=mysql --db-port=3306 \
-                     --db-name=example --db-user=root --db-password=root --force
-          docker-compose exec -T php bin/oe-console oe:setup:demodata
 
       - name: Stop containers
         if: always()
