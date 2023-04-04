@@ -102,7 +102,7 @@ jobs:
 #          propagate_failure: false
 #          wait_workflow: false
 
-  install_shop_with_module:
+  install_shop:
     needs: [ prepare_environment ]
     runs-on: ubuntu-latest
     steps:
