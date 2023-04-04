@@ -153,8 +153,9 @@ jobs:
               -e 's#/var/www/#/var/www/source/#g;'\
               containers/httpd/project.conf
 
-      - name: Prepare htaccess
+      - name: Prepare shop configuration
         run: |
+          cp source/source/config.inc.php.dist source/source/config.inc.php
           perl -pi\
             -e 'print "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1\n\n" if $. == 1'\
             source/source/.htaccess
