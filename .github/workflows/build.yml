@@ -139,7 +139,7 @@ jobs:
         run: |
           make setup
           make addbasicservices
-          make file=services/selenium-firefox.yml addservice
+          make file=services/selenium-chrome.yml addservice
           perl -pi\
               -e "s#PHP_VERSION=.*#PHP_VERSION='${{ env.PHP_VERSION }}'#g;"\
               -e "s#MYSQL_VERSION=.*#MYSQL_VERSION='${{ env.MYSQL_VERSION }}'#g;"\
@@ -159,31 +159,6 @@ jobs:
           perl -pi\
             -e 'print "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1\n\n" if $. == 1'\
             source/source/.htaccess
-
-      - name: Prepare for codeception testing
-        run: |
-          chmod +777 source/tests/Codeception/acceptance.suite.yml
-          chmod +777 source/tests/Codeception/acceptanceAdmin.suite.yml
-          perl -pi\
-            -e 's#window_size: maximize#window_size: 1600x2000#g;'\
-            -e 's#window_size: 1600x1000#window_size: 1600x2000#g;'\
-            -e 's#- \\OxidEsales\\Codeception\\Module\\SelectTheme:#- \\OxidEsales\\Codeception\\Module\\OxideshopModules: \n        - \\OxidEsales\\Codeception\\Module\\SelectTheme:#g;'\
-             source/tests/Codeception/acceptance.suite.yml
-          perl -pi\
-            -e 's#window_size: maximize#window_size: 1600x1200#g;'\
-            -e 's#window_size: 1600x1000#window_size: 1600x1200#g;'\
-            -e 's#- \\OxidEsales\\Codeception\\Module\\SelectTheme:#- \\OxidEsales\\Codeception\\Module\\OxideshopModules: \n        - \\OxidEsales\\Codeception\\Module\\SelectTheme:#g;'\
-            source/tests/Codeception/acceptanceAdmin.suite.yml
-
-      - name: Prepare for smarty testing
-        if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
-        run: |
-          perl -pi\
-            -e 's#Application/views/twig#Application/views/${{ env.THEME }}/translations#g;'\
-             source/tests/Codeception/acceptance.suite.yml
-          perl -pi\
-            -e 's#Application/views/admin_twig#Application/views/${{ env.THEME }}/translations,Application/views/admin_smarty#g;'\
-            source/tests/Codeception/acceptanceAdmin.suite.yml
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -419,8 +394,8 @@ jobs:
       - name: Run tests
         run: |
           docker-compose exec -T \
-            -e SELENIUM_SERVER_HOST=seleniumfirefox \
-            -e BROWSER_NAME=firefox \
+            -e SELENIUM_SERVER_HOST=selenium \
+            -e BROWSER_NAME=chrome \
             -e ACTIVE_THEME=${{ env.THEME }} \
             -e THEME_ID=${{ env.THEME }} \
             php php vendor/bin/codecept run acceptance,acceptanceAdmin -c tests/codeception.yml --ext DotReporter | tee codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
