@@ -47,7 +47,7 @@ jobs:
   prepare_environment:
     runs-on: ubuntu-latest
     outputs:
-      SHOP_BRANCH: ${{ steps.php_version.outputs.SHOP_BRANCH }}
+      SHOP_BRANCH: ${{ steps.shop_branch.outputs.SHOP_BRANCH }}
       PHP_VERSION: ${{ steps.php_version.outputs.PHP_VERSION }}
       MYSQL_VERSION: ${{ steps.mysql_version.outputs.MYSQL_VERSION }}
       TEMPLATE_ENGINE: ${{ steps.template_engine.outputs.TEMPLATE_ENGINE }}
