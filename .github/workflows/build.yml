@@ -1,0 +1,382 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      shop_branch:
+        description: 'Shop branch or tag'
+        required: true
+        default: 'b-7.0.x'
+        type: string
+      php:
+        description: 'PHP version'
+        required: true
+        default: '8.0'
+        type: choice
+        options:
+          - '8.0'
+          - '8.1'
+      mysql:
+        description: 'MySQL version'
+        required: true
+        default: '5.7'
+        type: choice
+        options:
+          - '5.7'
+          - '8.0'
+      template_engine:
+        description: 'Template engine'
+        required: true
+        default: 'twig'
+        type: choice
+        options:
+          - 'twig'
+          - 'smarty'
+      theme:
+        description: 'Theme'
+        required: true
+        default: 'apex'
+        type: choice
+        options:
+          - 'apex'
+          - 'twig'
+          - 'wave'
+          - 'flow'
+
+jobs:
+  prepare_environment:
+    runs-on: ubuntu-latest
+    outputs:
+      SHOP_BRANCH: ${{ steps.php_version.outputs.SHOP_BRANCH }}
+      PHP_VERSION: ${{ steps.php_version.outputs.PHP_VERSION }}
+      MYSQL_VERSION: ${{ steps.mysql_version.outputs.MYSQL_VERSION }}
+      TEMPLATE_ENGINE: ${{ steps.template_engine.outputs.TEMPLATE_ENGINE }}
+      THEME: ${{ steps.theme.outputs.THEME }}
+    steps:
+      - id: shop_branch
+        run: |
+          echo -n "SHOP_BRANCH=${{ inputs.shop_branch }}" >> $GITHUB_OUTPUT
+
+      - id: php_version
+        run: |
+          echo -n "PHP_VERSION=${{ inputs.php }}" >> $GITHUB_OUTPUT
+
+      - id: mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ inputs.mysql }}" >> $GITHUB_OUTPUT
+
+      - id: template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ inputs.template_engine }}" >> $GITHUB_OUTPUT
+
+      - id: theme
+        run: |
+          echo -n "THEME=${{ inputs.theme }}" >> $GITHUB_OUTPUT
+
+#  test_EE:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Trigger EE workflow and wait for results
+#        uses: convictional/trigger-workflow-and-wait@v1.6.5
+#        with:
+#          owner: oxid-esales
+#          repo: oxideshop_ee
+#          github_user: ${{ secrets.CI_USER }}
+#          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
+#          workflow_file_name: matrix_full.yml
+#          ref: ${{ github.ref_name }}
+#
+#  test_module-template:
+#    runs-on: ubuntu-latest
+#    if: github.ref_name == 'b-7.0.x'
+#    steps:
+#      - name: Trigger module-template workflow and wait for results
+#        uses: convictional/trigger-workflow-and-wait@v1.6.3
+#        with:
+#          owner: oxid-esales
+#          repo: module-template
+#          github_user: ${{ secrets.CI_USER }}
+#          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
+#          workflow_file_name: development.yml
+#          ref: ${{ github.ref_name }}
+#          propagate_failure: false
+#          wait_workflow: false
+
+  install_shop_with_module:
+    needs: [ prepare_environment ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print test parameters
+        run: |
+          echo "Running job with shop branch/tag ${{ needs.prepare_environment.outputs.SHOP_BRANCH }}"
+          echo "Running job with PHP version ${{ needs.prepare_environment.outputs.PHP_VERSION }}"
+          echo "Running job with MySQL version ${{ needs.prepare_environment.outputs.MYSQL_VERSION }}"
+          echo "Running job with template engine ${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}"
+          echo "Running job with theme ${{ needs.prepare_environment.outputs.THEME }}"
+          echo ${{ github.event_name }}
+
+      - name: context shop_branch
+        run: |
+          echo -n "SHOP_BRANCH=${{ needs.prepare_environment.outputs.SHOP_BRANCH }}" >> $GITHUB_ENV
+
+      - name: context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION }}" >> $GITHUB_ENV
+
+      - name: context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION }}" >> $GITHUB_ENV
+
+      - name: context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}" >> $GITHUB_ENV
+
+      - name: Clone testing environment master
+        run: git clone https://github.com/OXID-eSales/docker-eshop-sdk.git .
+
+      - name: Clone the shop
+        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ env.SHOP_BRANCH }} --single-branch source
+
+      - name: Cache current installation
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+
+      - name: Prepare container configuration
+        run: |
+          make setup
+          make addbasicservices
+          make file=services/selenium-firefox.yml addservice
+          perl -pi\
+              -e "s#PHP_VERSION=.*#PHP_VERSION='${{ env.PHP_VERSION }}'#g;"\
+              -e "s#MYSQL_VERSION=.*#MYSQL_VERSION='${{ env.MYSQL_VERSION }}'#g;"\
+              .env
+          perl -pi\
+              -e 's#display_errors =.*#display_errors = false#g;'\
+              -e 'print "xdebug.max_nesting_level=1000\n\n";'\
+              -e 'print "error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING\n"'\
+              containers/php/custom.ini
+          perl -pi\
+              -e 's#/var/www/#/var/www/source/#g;'\
+              containers/httpd/project.conf
+
+      - name: Prepare shop configuration
+        run: |
+          cp source/source/config.inc.php.dist source/source/config.inc.php
+          perl -pi\
+            -e 'print "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1\n\n" if $. == 1'\
+            source/source/.htaccess
+          perl -pi\
+            -e 's#<dbHost>#mysql#g;'\
+            -e 's#<dbUser>#root#g;'\
+            -e 's#<dbName>#example#g;'\
+            -e 's#<dbPwd>#root#g;'\
+            -e 's#<dbPort>#3306#g;'\
+            -e 's#<sShopURL>#http://localhost.local/#g;'\
+            -e 's#<sShopDir>#/var/www/source/#g;'\
+            -e 's#<sCompileDir>#/var/www/source/tmp/#g;'\
+            source/source/config.inc.php
+
+      - name: Prepare for codeception testing
+        run: |
+          chmod +777 source/tests/Codeception/acceptance.suite.yml
+          chmod +777 source/tests/Codeception/acceptanceAdmin.suite.yml
+          perl -pi\
+            -e 's#window_size: maximize#window_size: 1600x2000#g;'\
+            -e 's#window_size: 1600x1000#window_size: 1600x2000#g;'\
+            -e 's#- \\OxidEsales\\Codeception\\Module\\SelectTheme:#- \\OxidEsales\\Codeception\\Module\\OxideshopModules: \n        - \\OxidEsales\\Codeception\\Module\\SelectTheme:#g;'\
+             source/tests/Codeception/acceptance.suite.yml
+          perl -pi\
+            -e 's#window_size: maximize#window_size: 1600x1200#g;'\
+            -e 's#window_size: 1600x1000#window_size: 1600x1200#g;'\
+            -e 's#- \\OxidEsales\\Codeception\\Module\\SelectTheme:#- \\OxidEsales\\Codeception\\Module\\OxideshopModules: \n        - \\OxidEsales\\Codeception\\Module\\SelectTheme:#g;'\
+            source/tests/Codeception/acceptanceAdmin.suite.yml
+
+      - name: Prepare for smarty testing
+        if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
+        run: |
+          perl -pi\
+            -e 's#Application/views/twig#Application/views/${{ env.THEME }}/translations#g;'\
+             source/tests/Codeception/acceptance.suite.yml
+          perl -pi\
+            -e 's#Application/views/admin_twig#Application/views/${{ env.THEME }}/translations,Application/views/admin_smarty#g;'\
+            source/tests/Codeception/acceptanceAdmin.suite.yml
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Install smarty template engine and ${{ env.THEME }} theme
+        if: ${{ env.TEMPLATE_ENGINE == 'smarty' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/smarty-component:dev-b-7.0.x --no-update
+          docker-compose exec -T php composer require oxid-esales/smarty-admin-theme:dev-b-7.0.x --no-update
+          docker-compose exec -T php composer require oxid-esales/${{ env.THEME }}-theme:dev-b-7.0.x --no-update
+
+      - name: Install twig template engine and ${{ env.THEME }} theme
+        if: ${{ env.TEMPLATE_ENGINE == 'twig' }}
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+          docker-compose exec -T php composer require oxid-esales/twig-component:dev-b-7.0.x --no-update
+          docker-compose exec -T php composer require oxid-esales/twig-admin-theme:dev-b-7.0.x --no-update
+          docker-compose exec -T php composer require oxid-esales/${{ env.THEME }}-theme:dev-b-7.0.x --no-update
+
+      - name: Install dependencies
+        run: |
+          docker-compose exec -T php composer update --no-interaction
+
+      - name: Reset and prepare
+        run: |
+          docker-compose exec -T php bin/oe-console oe:database:reset --db-host=mysql --db-port=3306 \
+                     --db-name=example --db-user=root --db-password=root --force
+          docker-compose exec -T php bin/oe-console oe:setup:demodata
+
+      - name: Stop containers
+        if: always()
+        run: |
+          docker-compose down
+          sleep 2
+
+      - name: Upload configuration artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Config-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+          path: |
+            docker-compose.yml
+            source/composer.json
+            source/composer.lock
+            source/source/config.inc.php
+
+  unit_tests:
+    needs: [ install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+          restore-keys: |
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Run tests
+        run: |
+          docker-compose run -T \
+            php php vendor/bin/phpunit -c phpunit.xml tests/Unit | tee unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Ensure that tests have been run
+        run: if [ ! -s unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload PHPUnit Log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  integration_tests:
+    needs: [ install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+          restore-keys: |
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Run tests
+        run: |
+          docker-compose run -T \
+            php php vendor/bin/phpunit -c phpunit.xml --bootstrap tests/bootstrap.php tests/Integration | tee integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Ensure that tests have been run
+        run: if [ ! -s integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload PHPUnit Log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  codeception_tests:
+    strategy:
+    needs: [ install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+          restore-keys: |
+            shopInstallation-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.sha }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Reset shop
+        run: docker-compose exec -T php php bin/oe-console oe:database:reset --db-host=mysql --db-port=3306 --db-name=example --db-user=root --db-password=root --force
+
+      - name: Run tests
+        run: |
+          docker-compose exec -T \
+            -e SELENIUM_SERVER_HOST=seleniumfirefox \
+            -e BROWSER_NAME=firefox \
+            php php vendor/bin/codecept run acceptance,acceptanceAdmin -c tests/codeception.yml --ext DotReporter | tee codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Upload PHPUnit Log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Ensure that tests have been run
+        run: if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload Codeception Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeception-artifacts-PHP${{ env.PHP_VERSION }}-MYSQL${{ env.MYSQL_VERSION }}
+          path: source/tests/Codeception/_output/*
+          if-no-files-found: ignore
+          retention-days: 7
