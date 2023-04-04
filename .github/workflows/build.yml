@@ -29,17 +29,21 @@ on:
         options:
           - 'twig'
           - 'smarty'
-      theme:
-        description: 'Theme'
-        required: true
-        default: 'apex'
-        type: choice
-        options:
-          - 'apex'
-          - 'twig'
-          - 'wave'
-          - 'flow'
-          - 'azure'
+      apex-theme:
+        description: 'Apex-theme'
+        default: 'dev-main'
+      twig-theme:
+        description: 'Twig-theme'
+        default: 'dev-b-7.0.x'
+      wave-theme:
+        description: 'Wave-theme'
+        default: 'dev-b-7.0.x'
+      flow-theme:
+        description: 'Flow-theme'
+        default: 'dev-b-7.0.x'
+      azure-theme:
+        description: 'Azure-theme'
+        default: 'dev-master'
 
 jobs:
   prepare_environment:
