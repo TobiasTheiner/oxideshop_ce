@@ -95,92 +95,92 @@ jobs:
 
       - id: oxideshop_composer_plugin_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop_composer_plugin.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop_composer_plugin.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_COMPOSER_PLUGIN_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_db_views_generator_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-db-views-generator.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-db-views-generator.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_DB_VIEWS_GENERATOR_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_demodata_installer_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-demodata-installer.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-demodata-installer.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_DEMODATA_INSTALLER_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_doctrine_migration_wrapper_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-doctrine-migration-wrapper.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-doctrine-migration-wrapper.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_facts_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-facts.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-facts.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_FACTS_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_unified_namespace_generator_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-unified-namespace-generator.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-unified-namespace-generator.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: twig_component_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "TWIG_COMPONENT_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "TWIG_COMPONENT_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: smarty_component_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "SMARTY_COMPONENT_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "SMARTY_COMPONENT_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: twig_admin_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "TWIG_ADMIN_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "TWIG_ADMIN_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: smarty_admin_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "SMARTY_ADMIN_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "SMARTY_ADMIN_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: apex_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "APEX_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "APEX_THEME_VERSION=dev-main" >> $GITHUB_OUTPUT ; fi
 
       - id: twig_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "TWIG_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "TWIG_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: wave_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "WAVE_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "WAVE_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: flow_theme_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "FLOW_THEME_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT ; else echo -n "FLOW_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT ; fi
 
       - id: codeception_modules_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-modules.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-modules.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "CODECEPTION_MODULES_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: codeception_page_objects_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-page-objects.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-page-objects.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "CODECEPTION_PAGE_OBJECTS_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: developer_tools_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/developer-tools.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/developer-tools.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "DEVELOPER_TOOLS_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
       - id: oxideshop_ide_helper_version
         run: |
-          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxid-eshop-ide-helper.git ${{ inputs.branch }} | grep -w ${{ inputs.branch }} > /dev/null || true
+          git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxid-eshop-ide-helper.git ${{ inputs.branch }} | grep  -w "${{ inputs.branch }}$" > /dev/null || true
           if [ "$?" == "0" ] ; then echo -n "OXIDESHOP_IDE_HELPER_VERSION=dev-${{ inputs.branch }}" >> $GITHUB_OUTPUT; fi
 
 #  test_EE:
