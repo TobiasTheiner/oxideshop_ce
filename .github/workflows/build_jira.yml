@@ -1,0 +1,695 @@
+name: Build
+run-name: Build PHP ${{ github.event.inputs.php }} / MySQL ${{ github.event.inputs.mysql }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      jira_issue_id:
+      php:
+        description: 'PHP version'
+        required: true
+        default: '8.0'
+        type: choice
+        options:
+          - '8.0'
+          - '8.1'
+          - '8.2'
+      mysql:
+        description: 'MySQL version'
+        required: true
+        default: '5.7'
+        type: choice
+        options:
+          - '5.7'
+          - '8.0'
+      template_engine:
+        description: 'Template engine'
+        required: true
+        default: 'twig'
+        type: choice
+        options:
+          - 'twig'
+          - 'smarty'
+      theme:
+        description: 'Theme'
+        required: true
+        default: 'apex'
+        type: choice
+        options:
+          - 'apex'
+          - 'twig'
+          - 'wave'
+          - 'flow'
+
+jobs:
+  prepare_environment:
+    name: Preparation
+    runs-on: ubuntu-latest
+    outputs:
+      JIRA_ISSUE_ID: ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }}
+      PHP_VERSION: ${{ steps.php_version.outputs.PHP_VERSION }}
+      MYSQL_VERSION: ${{ steps.mysql_version.outputs.MYSQL_VERSION }}
+      TEMPLATE_ENGINE: ${{ steps.template_engine.outputs.TEMPLATE_ENGINE }}
+      THEME: ${{ steps.theme.outputs.THEME }}
+      OXIDESHOP_COMPOSER_PLUGIN_VERSION: ${{ steps.oxideshop_composer_plugin_version.outputs.OXIDESHOP_COMPOSER_PLUGIN_VERSION }}
+      OXIDESHOP_DB_VIEWS_GENERATOR_VERSION: ${{ steps.oxideshop_db_views_generator_version.outputs.OXIDESHOP_DB_VIEWS_GENERATOR_VERSION }}
+      OXIDESHOP_DEMODATA_INSTALLER_VERSION: ${{ steps.oxideshop_demodata_installer_version.outputs.OXIDESHOP_DEMODATA_INSTALLER_VERSION }}
+      OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION: ${{ steps.oxideshop_doctrine_migration_wrapper_version.outputs.OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION }}
+      OXIDESHOP_FACTS_VERSION: ${{ steps.oxideshop_facts_version.outputs.OXIDESHOP_FACTS_VERSION }}
+      OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION: ${{ steps.oxideshop_unified_namespace_generator_version.outputs.OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION }}
+      TWIG_COMPONENT_VERSION: ${{ steps.twig_component_version.outputs.TWIG_COMPONENT_VERSION }}
+      SMARTY_COMPONENT_VERSION: ${{ steps.smarty_component_version.outputs.SMARTY_COMPONENT_VERSION }}
+      TWIG_ADMIN_THEME_VERSION: ${{ steps.twig_admin_theme_version.outputs.TWIG_ADMIN_THEME_VERSION }}
+      SMARTY_ADMIN_THEME_VERSION: ${{ steps.smarty_admin_theme_version.outputs.SMARTY_ADMIN_THEME_VERSION }}
+      APEX_THEME_VERSION: ${{ steps.apex_theme_version.outputs.APEX_THEME_VERSION }}
+      TWIG_THEME_VERSION: ${{ steps.twig_theme_version.outputs.TWIG_THEME_VERSION }}
+      WAVE_THEME_VERSION: ${{ steps.wave_theme_version.outputs.WAVE_THEME_VERSION }}
+      FLOW_THEME_VERSION: ${{ steps.flow_theme_version.outputs.FLOW_THEME_VERSION }}
+      CODECEPTION_MODULES_VERSION: ${{ steps.codeception_modules_version.outputs.CODECEPTION_MODULES_VERSION }}
+      CODECEPTION_PAGE_OBJECTS_VERSION: ${{ steps.codeception_page_objects_version.outputs.CODECEPTION_PAGE_OBJECTS_VERSION }}
+      DEVELOPER_TOOLS_VERSION: ${{ steps.developer_tools_version.outputs.DEVELOPER_TOOLS_VERSION }}
+      OXIDESHOP_IDE_HELPER_VERSION: ${{ steps.oxideshop_ide_helper_version.outputs.OXIDESHOP_IDE_HELPER_VERSION }}
+    steps:
+      - id: jira_issue_id
+        run: |
+          echo -n "JIRA_ISSUE_ID=${{ inputs.jira_issue_id }}" >> $$GITHUB_OUTPUT
+
+      - id: php_version
+        run: |
+          echo -n "PHP_VERSION=${{ inputs.php }}" >> $$GITHUB_OUTPUT
+
+      - id: mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ inputs.mysql }}" >> $$GITHUB_OUTPUT
+
+      - id: template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ inputs.template_engine }}" >> $$GITHUB_OUTPUT
+
+      - id: theme
+        run: |
+          echo -n "THEME=${{ inputs.theme }}" >> $$GITHUB_OUTPUT
+
+      - id: oxideshop_composer_plugin_version
+        run: |
+          echo -n "OXIDESHOP_COMPOSER_PLUGIN_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop_composer_plugin.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+
+      - id: oxideshop_db_views_generator_version
+        run: |
+          echo -n "OXIDESHOP_DB_VIEWS_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-db-views-generator.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+
+      - id: oxideshop_demodata_installer_version
+        run: |
+          echo -n "OXIDESHOP_DEMODATA_INSTALLER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-demodata-installer.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+
+      - id: oxideshop_doctrine_migration_wrapper_version
+        run: |
+          echo -n "OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-doctrine-migration-wrapper.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: oxideshop_facts_version
+        run: |
+          echo -n "OXIDESHOP_FACTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-facts.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: oxideshop_unified_namespace_generator_version
+        run: |
+          echo -n "OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-unified-namespace-generator.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: twig_component_version
+        if: ${{ inputs.template_engine == 'twig' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "TWIG_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_COMPONENT_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: smarty_component_version
+        if: ${{ inputs.template_engine == 'smarty' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "SMARTY_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "SMARTY_COMPONENT_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: twig_admin_theme_version
+        if: ${{ env.TEMPLATE_ENGINE == 'twig' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "TWIG_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_ADMIN_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: smarty_admin_theme_version
+        if: ${{ inputs.template_engine == 'smarty' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "SMARTY_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "SMARTY_ADMIN_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: apex_theme_version
+        if: ${{ inputs.theme == 'apex' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "APEX_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "APEX_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: twig_theme_version
+        if: ${{ inputs.theme == 'twig' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "TWIG_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: wave_theme_version
+        if: ${{ inputs.theme == 'wave' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "WAVE_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "WAVE_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: flow_theme_version
+        if: ${{ inputs.theme == 'flow' }}
+        run: |
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
+            then echo -n "FLOW_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+            else echo -n "FLOW_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: codeception_modules_version
+        run: |
+          echo -n "CODECEPTION_MODULES_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-modules.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: codeception_page_objects_version
+        run: |
+          echo -n "CODECEPTION_PAGE_OBJECTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-page-objects.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: developer_tools_version
+        run: |
+          echo -n "DEVELOPER_TOOLS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/developer-tools.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+      - id: oxideshop_ide_helper_version
+        run: |
+          echo -n "OXIDESHOP_IDE_HELPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxid-eshop-ide-helper.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+
+#  test_EE:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Trigger EE workflow and wait for results
+#        uses: convictional/trigger-workflow-and-wait@v1.6.5
+#        with:
+#          owner: oxid-esales
+#          repo: oxideshop_ee
+#          github_user: ${{ secrets.CI_USER }}
+#          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
+#          workflow_file_name: matrix_full.yml
+#          ref: ${{ github.ref_name }}
+#
+#  test_module-template:
+#    runs-on: ubuntu-latest
+#    if: github.ref_name == 'b-7.0.x'
+#    steps:
+#      - name: Trigger module-template workflow and wait for results
+#        uses: convictional/trigger-workflow-and-wait@v1.6.3
+#        with:
+#          owner: oxid-esales
+#          repo: module-template
+#          github_user: ${{ secrets.CI_USER }}
+#          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
+#          workflow_file_name: development.yml
+#          ref: ${{ github.ref_name }}
+#          propagate_failure: false
+#          wait_workflow: false
+
+  install_shop:
+    name: Installation
+    needs: [ prepare_environment ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print test parameters
+        run: |
+          echo "Running job with shop branch/tag ${{ needs.prepare_environment.outputs.BRANCH }}"
+          echo "Running job with PHP version ${{ needs.prepare_environment.outputs.PHP_VERSION }}"
+          echo "Running job with MySQL version ${{ needs.prepare_environment.outputs.MYSQL_VERSION }}"
+          echo "Running job with template engine ${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}"
+          echo "Running job with theme ${{ needs.prepare_environment.outputs.THEME }}"
+          echo ${{ github.event_name }}
+
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_composer_plugin_version
+        run: |
+          echo -n "OXIDESHOP_COMPOSER_PLUGIN_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_COMPOSER_PLUGIN_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_db_views_generator_version
+        run: |
+          echo -n "OXIDESHOP_DB_VIEWS_GENERATOR_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_DB_VIEWS_GENERATOR_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_demodata_installer_version
+        run: |
+          echo -n "OXIDESHOP_DEMODATA_INSTALLER_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_DEMODATA_INSTALLER_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_doctrine_migration_wrapper_version
+        run: |
+          echo -n "OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_facts_version
+        run: |
+          echo -n "OXIDESHOP_FACTS_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_FACTS_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_unified_namespace_generator_version
+        run: |
+          echo -n "OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context twig_component_version
+        run: |
+          echo -n "TWIG_COMPONENT_VERSION=${{ needs.prepare_environment.outputs.TWIG_COMPONENT_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context smarty_component_version
+        run: |
+          echo -n "SMARTY_COMPONENT_VERSION=${{ needs.prepare_environment.outputs.SMARTY_COMPONENT_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context twig_admin_theme_version
+        run: |
+          echo -n "TWIG_ADMIN_THEME_VERSION=${{ needs.prepare_environment.outputs.TWIG_ADMIN_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context smarty_admin_theme_version
+        run: |
+          echo -n "SMARTY_ADMIN_THEME_VERSION=${{ needs.prepare_environment.outputs.SMARTY_ADMIN_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context apex_theme_version
+        run: |
+          echo -n "APEX_THEME_VERSION=${{ needs.prepare_environment.outputs.APEX_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context twig_theme_version
+        run: |
+          echo -n "TWIG_THEME_VERSION=${{ needs.prepare_environment.outputs.TWIG_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context wave_theme_version
+        run: |
+          echo -n "WAVE_THEME_VERSION=${{ needs.prepare_environment.outputs.WAVE_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context flow_theme_version
+        run: |
+          echo -n "FLOW_THEME_VERSION=${{ needs.prepare_environment.outputs.FLOW_THEME_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context codeception_modules_version
+        run: |
+          echo -n "CODECEPTION_MODULES_VERSION=${{ needs.prepare_environment.outputs.CODECEPTION_MODULES_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context codeception_page_objects_version
+        run: |
+          echo -n "CODECEPTION_PAGE_OBJECTS_VERSION=${{ needs.prepare_environment.outputs.CODECEPTION_PAGE_OBJECTS_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context developer_tools_version
+        run: |
+          echo -n "DEVELOPER_TOOLS_VERSION=${{ needs.prepare_environment.outputs.DEVELOPER_TOOLS_VERSION }}" >> $GITHUB_ENV
+
+      - name: Context oxideshop_ide_helper_version
+        run: |
+          echo -n "OXIDESHOP_IDE_HELPER_VERSION=${{ needs.prepare_environment.outputs.OXIDESHOP_IDE_HELPER_VERSION }}" >> $GITHUB_ENV
+
+      - name: Clone testing environment master
+        run: git clone https://github.com/OXID-eSales/docker-eshop-sdk.git .
+
+      - name: Clone the shop
+        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ env.BRANCH }} --single-branch source
+
+      - name: Cache current installation
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+
+      - name: Prepare container configuration
+        run: |
+          make setup
+          make addbasicservices
+          make file=services/selenium-chrome.yml addservice
+          perl -pi\
+              -e "s#PHP_VERSION=.*#PHP_VERSION='${{ env.PHP_VERSION }}'#g;"\
+              -e "s#MYSQL_VERSION=.*#MYSQL_VERSION='${{ env.MYSQL_VERSION }}'#g;"\
+              .env
+          perl -pi\
+              -e 's#display_errors =.*#display_errors = false#g;'\
+              -e 'print "xdebug.max_nesting_level=1000\n\n";'\
+              -e 'print "error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING\n"'\
+              containers/php/custom.ini
+          perl -pi\
+              -e 's#/var/www/#/var/www/source/#g;'\
+              containers/httpd/project.conf
+
+      - name: Prepare shop configuration
+        run: |
+          cp source/source/config.inc.php.dist source/source/config.inc.php
+          perl -pi\
+            -e 'print "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1\n\n" if $. == 1'\
+            source/source/.htaccess
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Configure composer
+        run: |
+          docker-compose exec -T php composer config github-protocols https
+
+      - name: Require oxideshop-composer-plugin
+        if: ${{ env.OXIDESHOP_COMPOSER_PLUGIN_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-composer-plugin:${{ env.OXIDESHOP_COMPOSER_PLUGIN_VERSION }} --no-update
+
+      - name: Require oxideshop-db-views-generator
+        if: ${{ env.OXIDESHOP_DB_VIEWS_GENERATOR_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-db-views-generator:${{ env.OXIDESHOP_DB_VIEWS_GENERATOR_VERSION }} --no-update
+
+      - name: Require oxideshop-demodata-installer
+        if: ${{ env.OXIDESHOP_DEMODATA_INSTALLER_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-demodata-installer:${{ env.OXIDESHOP_DEMODATA_INSTALLER_VERSION }} --no-update
+
+      - name: Require oxideshop-doctrine-migration-wrapper
+        if: ${{ env.OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-doctrine-migration-wrapper:${{ env.OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION }} --no-update
+
+      - name: Require oxideshop-facts
+        if: ${{ env.OXIDESHOP_FACTS_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-facts:${{ env.OXIDESHOP_FACTS_VERSION }} --no-update
+
+      - name: Require oxideshop-unified-namespace-generator
+        if: ${{ env.OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-unified-namespace-generator:${{ env.OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION }} --no-update
+
+      - name: Require oxideshop-composer-plugin
+        if: ${{ env.OXIDESHOP_COMPOSER_PLUGIN_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-composer-plugin:${{ env.OXIDESHOP_COMPOSER_PLUGIN_VERSION }} --no-update
+
+      - name: Require twig template engine
+        if: ${{ env.TWIG_COMPONENT_VERSION != '' && env.TWIG_ADMIN_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/twig-component:${{ env.TWIG_COMPONENT_VERSION }} --no-update
+          docker-compose exec -T php composer require oxid-esales/twig-admin-theme:${{ env.TWIG_ADMIN_THEME_VERSION }} --no-update
+
+      - name: Require smarty template engine
+        if: ${{ env.SMARTY_COMPONENT_VERSION != '' && env.SMARTY_ADMIN_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/smarty-component:${{ env.SMARTY_COMPONENT_VERSION }} --no-update
+          docker-compose exec -T php composer require oxid-esales/smarty-admin-theme:${{ env.SMARTY_ADMIN_THEME_VERSION }} --no-update
+
+      - name: Require apex-theme
+        if: ${{ env.APEX_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer config -g github-oauth.github.com ${{ secrets.GH_CI_JENKINS_TOKEN }}
+          docker-compose exec -T php composer config repositories.oxid-esales/apex-theme git https://github.com/OXID-eSales/apex-theme.git
+          docker-compose exec -T php composer require oxid-esales/apex-theme:${{ env.APEX_THEME_VERSION }} --no-update
+
+      - name: Require twig-theme
+        if: ${{ env.TWIG_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/twig-theme:${{ env.TWIG_THEME_VERSION }} --no-update
+
+      - name: Require wave-theme
+        if: ${{ env.WAVE_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/wave-theme:${{ env.WAVE_THEME_VERSION }} --no-update
+
+      - name: Require flow-theme
+        if: ${{ env.FLOW_THEME_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/flow-theme:${{ env.FLOW_THEME_VERSION }} --no-update
+
+      - name: Require dev-depencencies for apex-theme
+        if: ${{ env.THEME == 'apex' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/codeception-modules:dev-b-7.0.x-APEX --no-update --dev
+          docker-compose exec -T php composer require oxid-esales/codeception-page-objects:dev-b-7.0.x-APEX --no-update --dev
+
+      - name: Require developer-tools
+        if: ${{ env.DEVELOPER_TOOLS_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/developer-tools:${{ env.DEVELOPER_TOOLS_VERSION }} --no-update --dev
+
+      - name: Require codeception-modules
+        if: ${{ env.CODECEPTION_MODULES_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/codeception-modules:${{ env.CODECEPTION_MODULES_VERSION }} --no-update --dev
+
+      - name: Require codeception-page-objects
+        if: ${{ env.CODECEPTION_PAGE_OBJECTS_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/codeception-page-objects:${{ env.CODECEPTION_PAGE_OBJECTS_VERSION }} --no-update --dev
+
+      - name: Require oxideshop-ide-helper
+        if: ${{ env.OXIDESHOP_IDE_HELPER_VERSION != '' }}
+        run: |
+          docker-compose exec -T php composer require oxid-esales/oxideshop-ide-helper:${{ env.OXIDESHOP_IDE_HELPER_VERSION }} --no-update --dev
+
+      - name: Install dependencies
+        run: |
+          docker-compose exec -T php composer update --no-interaction
+
+      - name: Setup shop
+        run: |
+          docker-compose exec -T php bin/oe-console oe:setup:shop --db-host mysql --db-port 3306 --db-name example \
+          --db-user root --db-password root --shop-url http://localhost.local/ --shop-directory /var/www/source/ --compile-directory /var/www/source/tmp/
+
+      - name: Activate ${{ env.THEME }}-theme
+        run: docker-compose exec -T php bin/oe-console oe:theme:activate ${{ env.THEME }}
+
+      - name: Stop containers
+        if: always()
+        run: |
+          docker-compose down
+          sleep 2
+
+      - name: Upload configuration artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Config-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            docker-compose.yml
+            source/composer.json
+            source/composer.lock
+            source/source/config.inc.php
+
+  unit_tests:
+    name: Unit
+    needs: [ prepare_environment, install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Run tests
+        run: |
+          docker-compose run -T \
+            -e ACTIVE_THEME=${{ env.THEME }} \
+            -e THEME_ID=${{ env.THEME }} \
+            php php vendor/bin/phpunit -c phpunit.xml tests/Unit | tee unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Check if log is empty
+        run: if [ ! -s unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload PHPUnit log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: unit_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  integration_tests:
+    name: Integration
+    needs: [ prepare_environment, install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Run tests
+        run: |
+          docker-compose run -T \
+            -e ACTIVE_THEME=${{ env.THEME }} \
+            -e THEME_ID=${{ env.THEME }} \
+            php php vendor/bin/phpunit -c phpunit.xml --bootstrap tests/bootstrap.php tests/Integration | tee integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error' integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Check if log is empty
+        run: if [ ! -s integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload PHPUnit log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: integration_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  codeception_tests:
+    name: Codeception
+    needs: [ prepare_environment, install_shop ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
+      - name: Context php_version
+        run: |
+          echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context mysql_version
+        run: |
+          echo -n "MYSQL_VERSION=${{ needs.prepare_environment.outputs.MYSQL_VERSION}}" >> $GITHUB_ENV
+
+      - name: Context template_engine
+        run: |
+          echo -n "TEMPLATE_ENGINE=${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE}}" >> $GITHUB_ENV
+
+      - name: Context theme
+        run: |
+          echo -n "THEME=${{ needs.prepare_environment.outputs.THEME}}" >> $GITHUB_ENV
+
+      - name: Load current installation from cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+
+      - name: Start containers
+        run: |
+          make up
+          sleep 2
+
+      - name: Run tests
+        run: |
+          docker-compose exec -T \
+            -e SELENIUM_SERVER_HOST=selenium \
+            -e BROWSER_NAME=chrome \
+            -e ACTIVE_THEME=${{ env.THEME }} \
+            -e THEME_ID=${{ env.THEME }} \
+            php php vendor/bin/codecept run acceptance,acceptanceAdmin -c tests/codeception.yml --ext DotReporter | tee codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt 2>&1 || true
+          if grep -q -Ei 'fail|\\.\\=\\=|Warning|Notice|Deprecated|Fatal|Error|DID NOT FINISH' codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt; then exit 1; fi
+
+      - name: Check if log is empty
+        run: if [ ! -s codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt ]; then echo "PHPUnit log file is empty! Seems like no tests have been run!" && exit 1; fi
+
+      - name: Upload PHPUnit log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpunit-logs
+          path: codeception_PHP${{ env.PHP_VERSION }}_MYSQL${{ env.MYSQL_VERSION }}_phpunit_log.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Codeception artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeception-artifacts-PHP${{ env.PHP_VERSION }}-MYSQL${{ env.MYSQL_VERSION }}
+          path: source/tests/Codeception/_output/*
+          if-no-files-found: ignore
+          retention-days: 7
