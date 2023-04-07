@@ -238,9 +238,9 @@ jobs:
           echo "Running job with theme ${{ needs.prepare_environment.outputs.THEME }}"
           echo ${{ github.event_name }}
 
-      - name: Context branch
+      - name: Context jira_issue_id
         run: |
-          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+          echo -n "JIRA_ISSUE_ID=${{ needs.prepare_environment.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
 
       - name: Context php_version
         run: |
@@ -334,7 +334,7 @@ jobs:
         run: git clone https://github.com/OXID-eSales/docker-eshop-sdk.git .
 
       - name: Clone the shop
-        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ env.BRANCH }} --single-branch source
+        run: git clone --depth 1 https://github.com/OXID-eSales/oxideshop_ce.git --branch ${{ github.ref_name }} --single-branch source
 
       - name: Cache current installation
         uses: actions/cache@v3
@@ -512,9 +512,9 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
-      - name: Context branch
+      - name: Context jira_issue_id
         run: |
-          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+          echo -n "JIRA_ISSUE_ID=${{ needs.prepare_environment.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
 
       - name: Context php_version
         run: |
@@ -571,9 +571,9 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
-      - name: Context branch
+      - name: Context jira_issue_id
         run: |
-          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+          echo -n "JIRA_ISSUE_ID=${{ needs.prepare_environment.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
 
       - name: Context php_version
         run: |
@@ -630,9 +630,9 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
-      - name: Context branch
+      - name: Context jira_issue_id
         run: |
-          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+          echo -n "JIRA_ISSUE_ID=${{ needs.prepare_environment.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
 
       - name: Context php_version
         run: |
