@@ -4,8 +4,6 @@ run-name: Build PHP ${{ github.event.inputs.php }} / MySQL ${{ github.event.inpu
 on:
   workflow_dispatch:
     inputs:
-      jira_issue_id:
-        description: 'Jira issue ID'
       php:
         description: 'PHP version'
         required: true
@@ -73,7 +71,7 @@ jobs:
     steps:
       - id: jira_issue_id
         run: |
-          echo -n "JIRA_ISSUE_ID=${{ inputs.jira_issue_id }}" >> $$GITHUB_OUTPUT
+          echo -n "JIRA_ISSUE_ID=$(echo ${{ github.ref_name }} | ggrep -P -o 'OXDEV-.\d+')" >> $$GITHUB_OUTPUT
 
       - id: php_version
         run: |
@@ -93,107 +91,107 @@ jobs:
 
       - id: oxideshop_composer_plugin_version
         run: |
-          echo -n "OXIDESHOP_COMPOSER_PLUGIN_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop_composer_plugin.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+          echo -n "OXIDESHOP_COMPOSER_PLUGIN_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop_composer_plugin.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
 
       - id: oxideshop_db_views_generator_version
         run: |
-          echo -n "OXIDESHOP_DB_VIEWS_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-db-views-generator.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+          echo -n "OXIDESHOP_DB_VIEWS_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-db-views-generator.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
 
       - id: oxideshop_demodata_installer_version
         run: |
-          echo -n "OXIDESHOP_DEMODATA_INSTALLER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-demodata-installer.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
+          echo -n "OXIDESHOP_DEMODATA_INSTALLER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-demodata-installer.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
 
       - id: oxideshop_doctrine_migration_wrapper_version
         run: |
-          echo -n "OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-doctrine-migration-wrapper.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "OXIDESHOP_DOCTRINE_MIGRATION_WRAPPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-doctrine-migration-wrapper.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: oxideshop_facts_version
         run: |
-          echo -n "OXIDESHOP_FACTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-facts.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "OXIDESHOP_FACTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-facts.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: oxideshop_unified_namespace_generator_version
         run: |
-          echo -n "OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-unified-namespace-generator.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "OXIDESHOP_UNIFIED_NAMESPACE_GENERATOR_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxideshop-unified-namespace-generator.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: twig_component_version
         if: ${{ inputs.template_engine == 'twig' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "TWIG_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "TWIG_COMPONENT_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "TWIG_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-component.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_COMPONENT_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: smarty_component_version
         if: ${{ inputs.template_engine == 'smarty' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "SMARTY_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "SMARTY_COMPONENT_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "SMARTY_COMPONENT_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-component.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "SMARTY_COMPONENT_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: twig_admin_theme_version
         if: ${{ env.TEMPLATE_ENGINE == 'twig' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "TWIG_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "TWIG_ADMIN_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "TWIG_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-admin-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_ADMIN_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: smarty_admin_theme_version
         if: ${{ inputs.template_engine == 'smarty' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "SMARTY_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "SMARTY_ADMIN_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "SMARTY_ADMIN_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/smarty-admin-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "SMARTY_ADMIN_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: apex_theme_version
         if: ${{ inputs.theme == 'apex' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "APEX_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "APEX_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "APEX_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/apex-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "APEX_THEME_VERSION=dev-main" >> $GITHUB_OUTPUT
           fi
 
       - id: twig_theme_version
         if: ${{ inputs.theme == 'twig' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "TWIG_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "TWIG_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "TWIG_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/twig-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "TWIG_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: wave_theme_version
         if: ${{ inputs.theme == 'wave' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "WAVE_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "WAVE_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "WAVE_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/wave-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "WAVE_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: flow_theme_version
         if: ${{ inputs.theme == 'flow' }}
         run: |
-          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" ]
-            then echo -n "FLOW_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $$GITHUB_OUTPUT
-            else echo -n "FLOW_THEME_VERSION=dev-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          if [ ! -z "$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" ]
+            then echo -n "FLOW_THEME_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/flow-theme.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $$GITHUB_OUTPUT
+            else echo -n "FLOW_THEME_VERSION=dev-b-7.0.x" >> $GITHUB_OUTPUT
           fi
 
       - id: codeception_modules_version
         run: |
-          echo -n "CODECEPTION_MODULES_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-modules.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "CODECEPTION_MODULES_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-modules.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: codeception_page_objects_version
         run: |
-          echo -n "CODECEPTION_PAGE_OBJECTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-page-objects.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "CODECEPTION_PAGE_OBJECTS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/codeception-page-objects.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: developer_tools_version
         run: |
-          echo -n "DEVELOPER_TOOLS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/developer-tools.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "DEVELOPER_TOOLS_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/developer-tools.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
       - id: oxideshop_ide_helper_version
         run: |
-          echo -n "OXIDESHOP_IDE_HELPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxid-eshop-ide-helper.git | grep -E ${{ github.ref_name }} | grep -E ${{ inputs.jira_issue_id }} | sed -n 's/^.*${{ github.ref_name }}/${{ github.ref_name }}/p')" >> $GITHUB_OUTPUT
+          echo -n "OXIDESHOP_IDE_HELPER_VERSION=dev-$(git ls-remote --heads https://${{ secrets.GH_CI_JENKINS_TOKEN }}@github.com/oxid-esales/oxid-eshop-ide-helper.git | grep -E b-7.0.x | grep -E ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }} | sed -n 's/^.*b-7.0.x/b-7.0.x/p')" >> $GITHUB_OUTPUT
 
 #  test_EE:
 #    runs-on: ubuntu-latest
@@ -206,7 +204,7 @@ jobs:
 #          github_user: ${{ secrets.CI_USER }}
 #          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
 #          workflow_file_name: matrix_full.yml
-#          ref: ${{ github.ref_name }}
+#          ref: b-7.0.x
 #
 #  test_module-template:
 #    runs-on: ubuntu-latest
@@ -220,7 +218,7 @@ jobs:
 #          github_user: ${{ secrets.CI_USER }}
 #          github_token: ${{ secrets.GH_CI_JENKINS_TOKEN }}
 #          workflow_file_name: development.yml
-#          ref: ${{ github.ref_name }}
+#          ref: b-7.0.x
 #          propagate_failure: false
 #          wait_workflow: false
 
@@ -231,7 +229,8 @@ jobs:
     steps:
       - name: Print test parameters
         run: |
-          echo "Running job with shop branch/tag ${{ needs.prepare_environment.outputs.BRANCH }}"
+          echo "Running job with shop branch/tag ${{ github.ref_name }}"
+          echo "Jira issue ID ${{ needs.prepare_environment.outputs.JIRA_ISSUE_ID }}"
           echo "Running job with PHP version ${{ needs.prepare_environment.outputs.PHP_VERSION }}"
           echo "Running job with MySQL version ${{ needs.prepare_environment.outputs.MYSQL_VERSION }}"
           echo "Running job with template engine ${{ needs.prepare_environment.outputs.TEMPLATE_ENGINE }}"
@@ -341,7 +340,7 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Prepare container configuration
         run: |
@@ -500,7 +499,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Config-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
+          name: Config-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             docker-compose.yml
             source/composer.json
@@ -537,9 +536,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+            shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
@@ -596,9 +595,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+            shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
@@ -655,9 +654,9 @@ jobs:
         with:
           path: |
             ./*
-          key: shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+          key: shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
           restore-keys: |
-            shopInstallation-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
+            shopInstallation-${{ github.ref_name }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Start containers
         run: |
