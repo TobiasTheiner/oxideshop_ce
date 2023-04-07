@@ -71,7 +71,7 @@ jobs:
     steps:
       - id: jira_issue_id
         run: |
-          echo -n "JIRA_ISSUE_ID=$(echo ${{ github.ref_name }} | ggrep -P -o 'OXDEV-.\d+')" >> $$GITHUB_OUTPUT
+          echo -n "JIRA_ISSUE_ID=$(echo ${{ github.ref_name }} | grep -P -o 'OXDEV-.\d+')" >> $$GITHUB_OUTPUT
 
       - id: php_version
         run: |
