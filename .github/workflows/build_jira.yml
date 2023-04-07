@@ -42,7 +42,7 @@ on:
 
 jobs:
   get_jira_id:
-    name: Set Jira ID
+    name: Get Jira ID
     runs-on: ubuntu-latest
     outputs:
       JIRA_ISSUE_ID: ${{ needs.get_jira_id.outputs.JIRA_ISSUE_ID }}
