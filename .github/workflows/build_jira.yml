@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       jira_issue_id:
+        description: 'Jira issue ID'
       php:
         description: 'PHP version'
         required: true
