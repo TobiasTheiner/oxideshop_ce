@@ -45,7 +45,7 @@ jobs:
     name: Get Jira ID
     runs-on: ubuntu-latest
     outputs:
-      JIRA_ISSUE_ID: ${{ steps.get_jira_id.outputs.JIRA_ISSUE_ID }}
+      JIRA_ISSUE_ID: ${{ steps.jira_issue_id.outputs.JIRA_ISSUE_ID }}
     steps:
       - id: jira_issue_id
         run: |
@@ -80,8 +80,7 @@ jobs:
       OXIDESHOP_IDE_HELPER_VERSION: ${{ steps.oxideshop_ide_helper_version.outputs.OXIDESHOP_IDE_HELPER_VERSION }}
     steps:
       - name: Context jira_issue_id
-        run: |
-          echo -n "JIRA_ISSUE_ID=${{ needs.get_jira_id.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
+        run: echo -n "JIRA_ISSUE_ID=${{ needs.get_jira_id.outputs.JIRA_ISSUE_ID }}" >> $GITHUB_ENV
           
       - id: php_version
         run: echo -n "PHP_VERSION=${{ inputs.php }}" >> $$GITHUB_OUTPUT
