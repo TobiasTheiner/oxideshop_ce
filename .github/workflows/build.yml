@@ -506,7 +506,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Config-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
+          name: Config-${{ env.BRANCH }}-${{ env.PHP_VERSION }}-${{ env.MYSQL_VERSION }}-${{ env.TEMPLATE_ENGINE }}-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             docker-compose.yml
             source/composer.json
@@ -518,6 +518,10 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
       - name: Context php_version
         run: |
           echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
@@ -573,6 +577,10 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
       - name: Context php_version
         run: |
           echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
@@ -628,6 +636,10 @@ jobs:
     needs: [ prepare_environment, install_shop ]
     runs-on: ubuntu-latest
     steps:
+      - name: Context branch
+        run: |
+          echo -n "BRANCH=${{ needs.prepare_environment.outputs.BRANCH }}" >> $GITHUB_ENV
+
       - name: Context php_version
         run: |
           echo -n "PHP_VERSION=${{ needs.prepare_environment.outputs.PHP_VERSION}}" >> $GITHUB_ENV
