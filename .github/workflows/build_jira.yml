@@ -49,7 +49,8 @@ jobs:
     steps:
       - id: jira_issue_id
         run: |
-          echo -n "JIRA_ISSUE_ID=$(echo ${{ github.ref_name }} | grep -P -o 'OXDEV-.\d+')" >> $$GITHUB_OUTPUT
+          JIRA_ISSUE_ID=$(echo ${{ github.ref_name }} | grep -P -o 'OXDEV-.\d+')
+          echo -n "JIRA_ISSUE_ID=$JIRA_ISSUE_ID" >> $$GITHUB_OUTPUT
   
   prepare_environment:
     name: Preparation
